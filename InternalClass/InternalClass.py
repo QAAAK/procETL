@@ -1,0 +1,83 @@
+import pyspark
+import onetl
+from py4j.protocol import Py4JJavaError
+
+
+def cnt_rows (data_frame: pyspark.sql.dataframe.DataFrame):
+      
+    """
+        Method for counting rows in a dataframe
+
+        :param data_frame: Spark DataFrame
+            
+        :return: quantity rows
+            
+    """
+    
+    try:
+         cnt_rows = data_frame.count()
+            
+    except TypeError:
+        
+        cnt_rows = None
+        
+        print ('DataFrame does not match type Spark')
+        
+    return cnt_rows
+
+
+def max_upper_bound(conn : onetl.connection, part_column : str = None):
+    
+    """
+        A method that calculates the maximum value of the partitioning field.
+
+        :param conn: connection DataBase
+        :param part_column : partition column (default None)
+            
+        :return: max size partition column     
+    """
+    
+    if part_column != None:
+        
+        try:
+            max_size = conn.sql(f"select max({part_column}) from {self.source_table}").head()[0] # add when creating a class
+            
+            max_size = round_upper_bound(max_size)
+            
+        except Py4JJavaError:
+            
+            max_size = None
+            
+            print('Sql query compilation error')
+            
+    
+    return max_size
+
+
+
+def round_upper_bound(number : int):
+    
+    """
+        A method that calculates the maximum value of the partitioning field.
+
+        :param number: Number
+            
+        :return: round Integer number       
+    """
+    
+    try:
+        
+        upper_bound = ((number + 9) // 10) * 10
+        
+    except TypeError:
+        
+        upper_bound = None
+        
+        print(('Param does not match type Integer'))
+        
+
+    return upper_bound
+    
+    
+def step_batch_insert(cnt_rows: int):
+    pass
