@@ -3,7 +3,7 @@ from onetl.connection import Postgres, Greenplum
 from onetl.log import setup_logging
 from onetl.db import DBReader, DBWriter
   
-
+# настраиваем формат логов и уровень логирования
 setup_logging()
  
 # создаем сессию
