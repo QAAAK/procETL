@@ -1,11 +1,11 @@
 from mtspark import get_spark
-from onetl.connection import Postgres, Greenplum
+from onetl.connection import Postgres, Greenplum, SparkHDFS
 from onetl.db import DBReader, DBWriter
 from py4j.protocol import Py4JJavaError
 from InternalClass import Internal
 from onetl.log import setup_logging
-
-
+from onetl.file import FileDFReader, FileDownloader
+from onetl.file.format import Excel
 
 class Outer_class:
 
@@ -31,6 +31,9 @@ class Outer_class:
 
         self.__df_from_outer_db = None
 
+        self.__internal = Internal(source_table)
+
+        
     def __str__(self):
 
         return f'source table: {self.__source_table}\ntarget table: {self.__target_table}'
@@ -128,14 +131,14 @@ class Outer_class:
         self.__target_conn = target_conn
         return target_conn
 
-    def insert_query(self, query: str, part_column: str = None):
+    def query_reader(self, query: str, part_column: str = None):
 
         """
             The method accepts a query body and optionally a partition column to create a query and write to the output of             a dataframe with output data
 
             :param query: SQL Query
 
-            :param part_column: Partition column
+            :param part_column: (optional) Partition column
 
             :return: DataFrame with output data
 
@@ -146,10 +149,7 @@ class Outer_class:
                 
                 df_from_outer_db = self.__source_conn.sql(f"{query}")
             else:
-                
-                internal = Internal(self.__source_table)
-
-                upper_bound =internal.max_upper_bound(self.source_connection(), part_column) # доработать 
+                upper_bound =self.__internal.max_upper_bound(self.source_connection(), part_column) # доработать 
                 
                 df_from_outer_db = self.__source_conn.sql(f"{query}",
                                                options=Postgres.SQLOptions(
@@ -187,8 +187,85 @@ class Outer_class:
             
             self.spark.stop()
                 
-            
-        except Exception as e:
+        except Py4JJavaError as e:
             print(f"an error occured: {e}")
             return None
         
+    
+    def transfer_table(self, transfer_table_name : str, part_column : str = None):
+
+        """
+            The method transfers table from source database to target database
+
+            :param transfer_table_name: Name of the desired transfer table
+
+            :param part_column: (optional) Partition column
+
+            :return: Nothing        
+        """
+
+        try:
+            if part_column = None:
+                reader_transfer_table = DBReader(
+                    connection=self.__source_conn,
+                    source=f"{transfer_table_name}",
+                    columns=["*"],
+                    )
+            else :
+                upper_bound =self.__internal.max_upper_bound(self.source_connection(), part_column)
+
+                reader_transfer_table = DBReader(
+                    connection=self.__source_conn,
+                    source=f{self.__source_table},
+                    columns=["*"],
+                    options=Postgres.ReadOptions(
+                        partition_column=part_column,
+                        num_partitions=8,
+                        lower_bound=0,
+                        upper_bound=upper_bound
+                    )
+                )
+
+            table_transfer_table = reader_transfer_table.run()
+
+        except Exception as e:
+            print(f"an error occured: {e}")
+            return None  
+            
+            self.__df_from_outer_db=reader_transfer_table
+
+            return reader_transfer_table
+
+    def load_file_toDB(self, file_link:str):
+
+        """
+            The method transfers local file to target database
+
+            :param file_link: Link to the file to be transferred to the database
+
+            :return: Nothing
+        """
+
+        try:
+            hdfs = SparkHDFS(
+                host="gp-mis-dwh.pv.mts.ru",
+                cluster="rnd-dwh",
+                spark=self.spark,
+            ).check()
+
+            reader = FileDFReader(
+                connection = hdfs,
+                header= True,
+                source_path=f{file_link},
+                options=FileDFReader.Options(recursive=False),
+            )
+
+        file_df = reader.run()
+
+        self.__df_from_outer_db=df
+        
+        except Py4JJavaError as e:
+                print(f"an error occured: {e}")
+
+
+

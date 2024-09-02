@@ -35,28 +35,28 @@ class Internal:
         return cnt_rows
 
     
-    def round_upper_bound(self, number : int):
-             
-        """
-            A method that calculates the maximum value of the partitioning field.
+        def round_upper_bound(self, number : int):
+            
+            """
+                A method that calculates the maximum value of the partitioning field.
 
-            :param number: Number
+                :param number: Number
 
-            :return: round Integer number       
-        """
-        
-        try:
+                :return: round Integer number       
+            """
+                pass
+#             try:
 
-            upper_bound = ((number + 9) // 10) * 10
+#                 upper_bound = ((number + 9) // 10) * 10
 
-        except TypeError:
+#             except TypeError:
 
-            upper_bound = None
+#                 upper_bound = None
 
-            # print(('Param does not match type Integer'))
+#                 # print(('Param does not match type Integer'))
 
-        return upper_bound
-                
+
+#             return upper_bound
 
 
     def max_upper_bound(self, conn : onetl.connection, part_column : str = None):
@@ -74,7 +74,8 @@ class Internal:
 
             try:
                 max_size = conn.sql(f"select max({part_column}) from {self.__source_table}").head()[0] # add when creating a class
-                max_size = self.__round_upper_bound(max_size)
+
+                max_size = self.round_upper_bound(max_size)
 
             except Py4JJavaError:
 

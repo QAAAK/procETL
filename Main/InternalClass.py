@@ -86,8 +86,8 @@ class Internal:
         return max_size
 
 
-
-
-
     def __step_batch_insert(self, cnt_rows: int):
         pass
+
+
+    def 
