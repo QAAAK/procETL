@@ -94,9 +94,11 @@ class Internal:
             :return: max size partition column     
         """
         
-        if cnt_rows => 10_000_000 and cnt_rows <= 100_000_000:
+        batch = None
+        
+        if (cnt_rows >= 10_000_000) and (cnt_rows <= 100_000_000):
             batch = 2_000_000
-        elif cnt_rows > 100_000_000 and cnt_rows < 500_000_000:
+        elif (cnt_rows > 100_000_000) and (cnt_rows < 500_000_000):
             batch = 5_000_000
         else:
             batch = 1_000_000
