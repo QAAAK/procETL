@@ -22,4 +22,4 @@ The process of automating the replication of the ETL/ELT process for internal us
 
 ## Support
 
-<santalovdv@mts.ru> and <nosovva@mts.ru>
+<dmitsantalov@yandex.ru> and <nosovva@mts.ru>
