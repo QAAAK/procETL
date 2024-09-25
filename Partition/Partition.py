@@ -1,4 +1,4 @@
-class Partition:
+class Partition (ETL):
 
     def __init__(self, partition_column:str):
 
@@ -17,6 +17,10 @@ class Partition:
 
 
     def get_bin_key(self, array:[]):
+        pass
+
+
+    
         
 
 
